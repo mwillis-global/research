@@ -15,7 +15,7 @@
     page: 0,
     direction: "desc",
     sort: "position",
-    per: 30
+    per: 36
   };
 
   loading = false;
