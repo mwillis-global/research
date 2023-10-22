@@ -1,150 +1,145 @@
-(function() {
-  var addImagePost, addLinkPost, addMediaPost, addPost, addTextPost, buildQuery, getTemplate, loadPosts, loading, nextPage, posts, queryOptions, settings;
+// Define the configuration settings
+const settings = {
+  channelslug: "mw404"
+};
 
-  $(function() {
-    return nextPage();
-  });
+// Array to store loaded posts
+const posts = [];
 
-  settings = {
-    channelslug: "mw404"
-  };
+// Query options
+const queryOptions = {
+  page: 0,
+  direction: "desc",
+  sort: "position",
+  per: 40
+};
 
-  posts = [];
+// Flag to track loading state
+let loading = false;
 
-  queryOptions = {
-    page: 0,
-    direction: "desc",
-    sort: "position",
-    per: 40
-  };
+// Function to fetch posts
+const fetchPosts = async () => {
+  try {
+    const response = await fetch(buildQuery());
+    const data = await response.json();
+    data.contents.forEach(addPost);
+  } catch (error) {
+    console.error("Error fetching posts:", error);
+    $("#loading").text("Failed to load posts");
+  } finally {
+    loading = false;
+    $("#loading").removeClass("is-visible").addClass("not-visible");
+  }
+};
 
-  loading = false;
+// Function to load the next page of posts
+const nextPage = () => {
+  queryOptions.page++;
+  return fetchPosts();
+};
 
-  nextPage = function() {
-    queryOptions.page++;
-    return loadPosts(buildQuery());
-  };
+// Function to build the API query URL
+const buildQuery = () => {
+  return `https://api.are.na/v2/channels/${settings.channelslug}/contents?${$.param(queryOptions)}`;
+};
 
-  buildQuery = function() {
-    var query;
-    return query = "https://api.are.na/v2/channels/" + settings.channelslug + "/contents?" + ($.param(queryOptions));
-  };
+// Function to add a post to the page
+const addPost = (post) => {
+  const template = getTemplate("#postTemplate");
+  template.attr("id", post.id);
+  const mediacontainer = $("#mediacontainer", template);
 
-  loadPosts = function(url) {
-    $("#loading").removeClass("not-visible").addClass("is-visible");
-    return $.getJSON(url, function(response) {
-      var i, len, post, ref;
-      ref = response.contents;
-      for (i = 0, len = ref.length; i < len; i++) {
-        post = ref[i];
-        addPost(post);
-      }
-      loading = false;
-      return $("#loading").removeClass("is-visible").addClass("not-visible");
-    }).fail(function(jqxhr, textStatus, error) {
-      console.log(jqxhr, textStatus, error);
-      console.log(jqxhr.statusCode());
-      return $("#loading").text(textStatus + ", " + error);
-    });
-  };
+  switch (post["class"]) {
+    case "Image":
+      mediacontainer.html(addImagePost(post));
+      break;
+    case "Text":
+      mediacontainer.html(addTextPost(post));
+      break;
+    case "Media":
+      mediacontainer.html(addMediaPost(post));
+      break;
+    case "Link":
+      mediacontainer.html(addLinkPost(post));
+      break;
+    default:
+      console.log("Unknown post type", post["class"], post);
+  }
 
-  addPost = function(post) {
-    var mediacontainer, template;
-    template = getTemplate("#postTemplate");
-    template.attr("id", post.id);
-    mediacontainer = $("#mediacontainer", template);
-    switch (post["class"]) {
-      case "Image":
-        mediacontainer.html(addImagePost(post));
-        break;
-      case "Text":
-        mediacontainer.html(addTextPost(post));
-        break;
-      case "Media":
-        mediacontainer.html(addMediaPost(post));
-        break;
-      case "Link":
-        mediacontainer.html(addLinkPost(post));
-        break;
-      default:
-        console.log("unknown post type", post["class"], post);
-    }
-    posts.push(post);
-    return $("#posts-container").append(template);
-  };
+  posts.push(post);
+  $("#posts-container").append(template);
+};
 
-  addImagePost = function(post) {
-    var imageTemplate;
-    imageTemplate = getTemplate("#imageTemplate");
-    if (post.generated_title !== "Untitled") {  
+// Functions to add different types of posts
+const addImagePost = (post) => {
+  const imageTemplate = getTemplate("#imageTemplate");
+  if (post.generated_title !== "Untitled") {
     $("#post-title", imageTemplate).html(post.generated_title);
-    }
-    $("#post-desc", imageTemplate).html(post.description_html);
-    $("img", imageTemplate).attr("src", post.image.original.url);
-    $("a", imageTemplate).on('click', function(){
-        $(this).toggleClass('large');
-        $(this).siblings().toggleClass('hide');
-        return false;
-});
-    return imageTemplate;
-  };
+  }
+  $("#post-desc", imageTemplate).html(post.description_html);
+  $("img", imageTemplate).attr("src", post.image.original.url);
+  $("a", imageTemplate).on('click', function () {
+    $(this).toggleClass('large');
+    $(this).siblings().toggleClass('hide');
+    return false;
+  });
+  return imageTemplate;
+};
 
-  addTextPost = function(post) {
-    var textTemplate;
-    textTemplate = getTemplate("#textTemplate");
-    if (post.generated_title !== "Untitled") {
+const addTextPost = (post) => {
+  const textTemplate = getTemplate("#textTemplate");
+  if (post.generated_title !== "Untitled") {
     $("#post-title", textTemplate).text(post.generated_title);
-    }
-    $("#post-content", textTemplate).html(post.content_html);
-    return textTemplate;
-  };
+  }
+  $("#post-content", textTemplate).html(post.content_html);
+  return textTemplate;
+};
 
-  addMediaPost = function(post) {
-    var mediaTemplate;
-    mediaTemplate = getTemplate("#mediaTemplate");
-    if (post.generated_title !== "Untitled") {  
+const addMediaPost = (post) => {
+  const mediaTemplate = getTemplate("#mediaTemplate");
+  if (post.generated_title !== "Untitled") {
     $("#post-title", mediaTemplate).html(post.generated_title);
-    }
-    $("#post-desc", mediaTemplate).html(post.description_html);
-    $("#post-content", mediaTemplate).html(post.embed.html);
-    $("#post-source", mediaTemplate).html(post.source.url);
-    return mediaTemplate;
-  };
+  }
+  $("#post-desc", mediaTemplate).html(post.description_html);
+  $("#post-content", mediaTemplate).html(post.embed.html);
+  $("#post-source", mediaTemplate).html(post.source.url);
+  return mediaTemplate;
+};
 
-  addLinkPost = function(post) {
-    var template;
-    template = getTemplate("#linkTemplate");
-    if (post.generated_title !== "Untitled") {  
+const addLinkPost = (post) => {
+  const template = getTemplate("#linkTemplate");
+  if (post.generated_title !== "Untitled") {
     $("#post-title", template).html(post.generated_title);
-    }
-    $("#post-desc", template).html(post.description_html);
-    $("img", template).attr("src", post.image.display.url);
-    $("#post-source", template).html(post.source.url);
-    return template;
-  };
+  }
+  $("#post-desc", template).html(post.description_html);
+  $("img", template).attr("src", post.image.display.url);
+  $("#post-source", template).html(post.source.url);
+  return template;
+};
 
-  getTemplate = function(type) {
-    var template;
-    template = $(type).clone();
-    return template.attr("id", null);
-  };
+// Function to get a template
+const getTemplate = (type) => {
+  const template = $(type).clone();
+  return template.attr("id", null);
+};
 
-  window.addEventListener("scroll", (function(_this) {
-    return function(e) {
-      var dif, docHeight, scrollTop, winHeight;
-      if (posts.length) {
-        scrollTop = $(window).scrollTop();
-        docHeight = $(document).height();
-        winHeight = $(window).height();
-        dif = docHeight - winHeight;
-        if (scrollTop > dif - winHeight * 2) {
-          if (!loading) {
-            loading = true;
-            return nextPage();
-          }
-        }
+// Add an event listener for scrolling
+window.addEventListener("scroll", () => {
+  if (posts.length) {
+    const scrollTop = window.scrollY;
+    const docHeight = document.documentElement.scrollHeight;
+    const winHeight = window.innerHeight;
+    const dif = docHeight - winHeight;
+    if (scrollTop > dif - winHeight * 2) {
+      if (!loading) {
+        loading = true;
+        nextPage();
       }
-    };
-  })(this));
+    }
+  }
+});
 
-}).call(this);
+// Initialize the script
+(() => {
+  nextPage();
+})();
