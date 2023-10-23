@@ -70,21 +70,42 @@ const addPost = (post) => {
   $("#posts-container").append(template);
 };
 
-// Functions to add different types of posts
+
 const addImagePost = (post) => {
   const imageTemplate = getTemplate("#imageTemplate");
   if (post.generated_title !== "Untitled") {
     $("#post-title", imageTemplate).html(post.generated_title);
   }
   $("#post-desc", imageTemplate).html(post.description_html);
-  $("img", imageTemplate).attr("src", post.image.original.url);
+  $("img", imageTemplate).attr("src", post.image.thumb.url);
   $("a", imageTemplate).on('click', function () {
+    const img = $("img", imageTemplate);
+    const currentSrc = img.attr("src");
+    const originalSrc = post.image.original.url;
+
+    if (currentSrc === originalSrc) {
+      img.attr("src", post.image.thumb.url);
+    } else {
+      img.attr("src", originalSrc);
+    }
+
     $(this).toggleClass('large');
     $(this).siblings().toggleClass('hide');
     return false;
   });
+
+  // Add an event listener to handle the Escape key
+  $(document).on('keydown', function (event) {
+    if (event.key === 'Escape') {
+      $("img", imageTemplate).attr("src", post.image.thumb.url);
+      $("a", imageTemplate).removeClass('large');
+      $("a", imageTemplate).siblings().removeClass('hide');
+    }
+  });
+
   return imageTemplate;
 };
+
 
 const addTextPost = (post) => {
   const textTemplate = getTemplate("#textTemplate");
