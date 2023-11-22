@@ -1,6 +1,6 @@
 // Define the configuration settings
 const settings = {
-  channelslug: "mw404"
+  channelslug: "research-nsdsf-kot4a"
 };
 
 // Array to store loaded posts
