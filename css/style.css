@@ -91,14 +91,12 @@ video {
 
 #arena{
     position: relative;
-    margin-top: 0;
 }
 
 /* ARENA TEMPLATES */
 
 #posts-container {
     padding: 10px;
-    padding-top:20px;
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
