@@ -91,7 +91,7 @@ video {
 
 #arena{
     position: relative;
-    margin-top: 6rem;
+    margin-top: 3rem;
 }
 
 /* ARENA TEMPLATES */
@@ -130,13 +130,13 @@ video {
 .large {
 	display: flex;
 	position: fixed;
-    align-self: center;
-    justify-content: center;
+	align-self: center;
+	justify-content: center;
 	left: 0;
 	top: 0;
 	background-color: rgba(255,255,255,.9);
-    height: 100vh;
-    width: 100vw;
+	height: 100vh;
+	width: 100vw;
 }
 
 .large img{
@@ -146,7 +146,7 @@ video {
 
 .show {
 	opacity: 1 !important;
-    display: block;
+	display: block;
 }
 .hide {
 	display: none;
@@ -154,5 +154,5 @@ video {
 
 
 @media only screen and (max-width: 768px) {
-   #arena {padding-top: 8rem !important;}
+   #arena {padding-top: 6rem !important;}
 }
