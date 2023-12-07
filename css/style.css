@@ -91,7 +91,7 @@ video {
 
 #arena{
     position: relative;
-    margin-top: 30px;
+    margin-top: 6rem;
 }
 
 /* ARENA TEMPLATES */
@@ -150,4 +150,9 @@ video {
 }
 .hide {
 	display: none;
+}
+
+
+@media only screen and (max-width: 768px) {
+   #arena {padding-top: 8rem !important;}
 }
