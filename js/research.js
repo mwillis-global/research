@@ -81,7 +81,7 @@ const addImagePost = (post) => {
   $("a", imageTemplate).on('click', function () {
     const img = $("img", imageTemplate);
     const currentSrc = img.attr("src");
-    const originalSrc = post.image.large.url;
+    const originalSrc = post.image.display.url;
 
     if (currentSrc === originalSrc) {
       img.attr("src", post.image.thumb.url);
