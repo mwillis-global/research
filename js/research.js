@@ -11,7 +11,7 @@ const queryOptions = {
   page: 0,
   direction: "desc",
   sort: "position",
-  per: 50
+  per: 48
 };
 
 // Flag to track loading state
